@@ -45,6 +45,16 @@ namespace M6_MovieClub.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        public IActionResult Delete(string uid)
+        {
+            var item = this._dbContext.Movies.FirstOrDefault(m => m.Uid == uid);
+            if (item != null && item.OwnerId == this._userManager.GetUserId(this.User))
+            {
+                this._dbContext.Movies.Remove(item);
+                this._dbContext.SaveChanges();
+            }
+            return RedirectToAction(nameof(Index));
+        }
 
 
         [Authorize]

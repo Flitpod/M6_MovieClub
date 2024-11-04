@@ -1,13 +1,26 @@
 ﻿@model IEnumerable<Movie>
 
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+
+
 <ul>
     @foreach (var movie in Model.GroupBy(m => m.Title))
     {
         <li>@movie.Key
             <ul>
-                @foreach (var owner in movie)
+                @foreach (var item in movie)
                 {
-                    <li>@owner.OwnerId</li>
+                    <li>
+                        @item.OwnerId
+                        @if (item.OwnerId == UserManager.GetUserId(User))
+                        {
+                            <a href="/Home/Delete/?uid=@item.Uid" >
+                                Delete
+                            </a>
+                        }
+                    </li>
                 }
             </ul>
         </li>
