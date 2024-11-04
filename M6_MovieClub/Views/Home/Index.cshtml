@@ -1,8 +1,15 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
+﻿@model IEnumerable<Movie>
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<ul>
+    @foreach (var movie in Model.GroupBy(m => m.Title))
+    {
+        <li>@movie.Key
+            <ul>
+                @foreach (var owner in movie)
+                {
+                    <li>@owner.OwnerId</li>
+                }
+            </ul>
+        </li>
+    }
+</ul>
