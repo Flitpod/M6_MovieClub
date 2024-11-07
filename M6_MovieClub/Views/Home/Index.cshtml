@@ -1,8 +1,8 @@
 ﻿@model IEnumerable<Movie>
 
 @using Microsoft.AspNetCore.Identity
-@inject SignInManager<IdentityUser> SignInManager
-@inject UserManager<IdentityUser> UserManager
+@inject SignInManager<SiteUser> SignInManager
+@inject UserManager<SiteUser> UserManager
 
 
 <ul>
@@ -13,7 +13,7 @@
                 @foreach (var item in movie)
                 {
                     <li>
-                        @item.OwnerId
+                        @item.Owner.FirstName @item.Owner.LastName
                         @if (item.OwnerId == UserManager.GetUserId(User))
                         {
                             <a href="/Home/Delete/?uid=@item.Uid" >

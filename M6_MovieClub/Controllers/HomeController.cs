@@ -9,11 +9,11 @@ namespace M6_MovieClub.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<SiteUser> _userManager;
         private readonly ILogger<HomeController> _logger;
         private readonly ApplicationDbContext _dbContext;
 
-        public HomeController(UserManager<IdentityUser> userManager, ILogger<HomeController> logger, ApplicationDbContext dbContext)
+        public HomeController(UserManager<SiteUser> userManager, ILogger<HomeController> logger, ApplicationDbContext dbContext)
         {
             _userManager = userManager;
             _logger = logger;
