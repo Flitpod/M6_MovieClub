@@ -6,5 +6,9 @@ namespace M6_MovieClub.Models
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }
+
+        public string ContentType { get; set; }
+
+        public byte[] Data { get; set; }
     }
 }

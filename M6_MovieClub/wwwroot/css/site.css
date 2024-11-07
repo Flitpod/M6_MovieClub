@@ -16,3 +16,45 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+.title {
+    font-size: 1.4em;
+    border-bottom: 1px solid black;
+    margin: 30px 0px 30px 0px;
+}
+
+ul {
+    list-style-type: none;
+}
+
+.img-container {
+    display: flex;
+    width: 50px;
+    height: 50px;
+    border-radius: 50px;
+    overflow: hidden;
+    justify-content: center;
+}
+
+.owner {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    column-gap: 20px;
+    align-items: center;
+    font-size: 0.9em;
+    margin: 20px;
+}
+
+.owner a {
+    color: black;
+    background-color: #eef2fe;
+    padding: 5px 10px;
+    border-radius: 20px;
+    text-align: center;
+    text-decoration: none;
+}
+
+.owner a:hover {
+    background-color: #f85f5f;
+}

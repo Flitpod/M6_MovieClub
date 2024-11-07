@@ -8,11 +8,14 @@
 <ul>
     @foreach (var movie in Model.GroupBy(m => m.Title))
     {
-        <li>@movie.Key
+        <li class="title">@movie.Key
             <ul>
                 @foreach (var item in movie)
                 {
-                    <li>
+                    <li class="owner">
+                        <div class="img-container">
+                            <img src="@Url.Action("GetImage","Home", new { userid = item.OwnerId })" />
+                        </div>
                         @item.Owner.FirstName @item.Owner.LastName
                         @if (item.OwnerId == UserManager.GetUserId(User))
                         {

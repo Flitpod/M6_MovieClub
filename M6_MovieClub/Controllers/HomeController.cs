@@ -56,6 +56,11 @@ namespace M6_MovieClub.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        public async Task<IActionResult> GetImage(string userId)
+        {
+            var user = this._userManager.Users.FirstOrDefault(u => u.Id == userId);
+            return new FileContentResult(user.Data, user.ContentType);
+        }
 
         [Authorize]
         public async Task<IActionResult> Privacy()
