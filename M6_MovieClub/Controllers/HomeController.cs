@@ -10,14 +10,32 @@ namespace M6_MovieClub.Controllers
     public class HomeController : Controller
     {
         private readonly UserManager<SiteUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager; 
         private readonly ILogger<HomeController> _logger;
         private readonly ApplicationDbContext _dbContext;
 
-        public HomeController(UserManager<SiteUser> userManager, ILogger<HomeController> logger, ApplicationDbContext dbContext)
+        public HomeController(UserManager<SiteUser> userManager, RoleManager<IdentityRole> roleManager, ILogger<HomeController> logger, ApplicationDbContext dbContext)
         {
             _userManager = userManager;
+            _roleManager = roleManager;
             _logger = logger;
             _dbContext = dbContext;
+        }
+
+        public async Task<IActionResult> DelegateAdmin()
+        {
+            var user = await this._userManager.GetUserAsync(this.User);
+            var role = new IdentityRole()
+            {
+                Name = "Admin",
+            };
+
+            if (!await this._roleManager.RoleExistsAsync("Admin"))
+            {
+                await this._roleManager.CreateAsync(role);
+            }
+            await this._userManager.AddToRoleAsync(user, "Admin");
+            return RedirectToAction(nameof(Index));
         }
 
         public IActionResult Index()
@@ -54,6 +72,24 @@ namespace M6_MovieClub.Controllers
                 this._dbContext.SaveChanges();
             }
             return RedirectToAction(nameof(Index));
+        }
+
+        [Authorize(Roles = "Admin")]
+        public IActionResult EditVotes()
+        {
+            return View(this._dbContext.Movies);
+        }
+
+        [Authorize(Roles = "Admin")]
+        public IActionResult DeleteVote(string uid)
+        {
+            var item = this._dbContext.Movies.FirstOrDefault(m => m.Uid == uid);
+            if (item != null)
+            {
+                this._dbContext.Movies.Remove(item);
+                this._dbContext.SaveChanges();
+            }
+            return RedirectToAction(nameof(EditVotes));
         }
 
         public async Task<IActionResult> GetImage(string userId)
