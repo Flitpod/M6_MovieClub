@@ -23,7 +23,18 @@ builder.Services.AddDefaultIdentity<SiteUser>(options =>
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequireUppercase = false;
 })
-.AddEntityFrameworkStores<ApplicationDbContext>();
+    .AddRoles<IdentityRole>()
+    .AddEntityFrameworkStores<ApplicationDbContext>();
+
+// facebook login 
+//builder.Services
+//    .AddAuthentication()
+//    .AddFacebook(opt =>
+//    {
+//        opt.AppId = "";
+//        opt.AppSecret = "";
+//    });
+
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();

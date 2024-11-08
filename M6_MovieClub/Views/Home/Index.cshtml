@@ -4,6 +4,9 @@
 @inject SignInManager<SiteUser> SignInManager
 @inject UserManager<SiteUser> UserManager
 
+@{
+    ViewData["Title"] = "List Movies";
+}
 
 <ul>
     @foreach (var movie in Model.GroupBy(m => m.Title))

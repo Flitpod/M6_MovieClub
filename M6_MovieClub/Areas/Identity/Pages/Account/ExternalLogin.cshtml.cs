@@ -18,6 +18,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
+using System.Net;
+using Newtonsoft.Json;
 
 namespace M6_MovieClub.Areas.Identity.Pages.Account
 {
@@ -72,19 +74,32 @@ namespace M6_MovieClub.Areas.Identity.Pages.Account
         [TempData]
         public string ErrorMessage { get; set; }
 
+        // For facebook external login
+        //public class TokenModel
+        //{
+        //    public string access_token { get; set; }
+        //    public string token_type { get; set; }
+        //}
+
         /// <summary>
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public class InputModel
         {
-            /// <summary>
-            ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
-            /// </summary>
             [Required]
             [EmailAddress]
             public string Email { get; set; }
+
+            [Required]
+            [StringLength(100)]
+            public string FirstName { get; set; }
+
+            [Required]
+            [StringLength(100)]
+            public string LastName { get; set; }
+
+            public string PictureUrl { get; set; }
         }
         
         public IActionResult OnGet() => RedirectToPage("./Login");
@@ -132,8 +147,18 @@ namespace M6_MovieClub.Areas.Identity.Pages.Account
                 {
                     Input = new InputModel
                     {
-                        Email = info.Principal.FindFirstValue(ClaimTypes.Email)
+                        Email = info.Principal.FindFirstValue(ClaimTypes.Email),
+                        FirstName = info.Principal.FindFirstValue(ClaimTypes.Surname),
+                        LastName = info.Principal.FindFirstValue(ClaimTypes.GivenName),
+                        PictureUrl = "https://graph.facebook.com/"
+                                    + info.Principal.FindFirstValue(ClaimTypes.NameIdentifier)
+                                    + "/picture?type=large"
                     };
+                    
+                    // For facebook external login
+                    //var access_token_json = new WebClient().DownloadString("");
+                    //var token = JsonConvert.DeserializeObject<TokenModel>(access_token_json);
+                    //Input.PictureUrl = $"https://graph.facebook.com/{info.Principal.FindFirstValue(ClaimTypes.NameIdentifier)}/picture?type=large";
                 }
                 return Page();
             }
@@ -153,6 +178,16 @@ namespace M6_MovieClub.Areas.Identity.Pages.Account
             if (ModelState.IsValid)
             {
                 var user = CreateUser();
+
+                // For facebook external login
+                //// set properties of extended input model
+                //user.FirstName = Input.FirstName;
+                //user.LastName = Input.LastName;
+
+                //// todo facebook profile picture processing
+                //var webClient = new WebClient();
+                //user.Data = webClient.DownloadData(Input.PictureUrl);
+                //user.ContentType  = webClient.ResponseHeaders[HttpRequestHeader.ContentType];
 
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
