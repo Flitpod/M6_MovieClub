@@ -1,0 +1,28 @@
+﻿@using Microsoft.AspNetCore.Identity
+@model IEnumerable<SiteUser>
+@inject SignInManager<SiteUser> SignInManager
+@inject UserManager<SiteUser> UserManager
+
+@{
+    ViewData["Title"] = "Edit Users";
+}
+
+<ul>
+    @foreach (var user in Model)
+    {
+        <li class="user">
+            <div class="img-container">
+                <img src="@Url.Action("GetImage","Home", new { userid = user.Id })" />
+            </div>
+            @user.FirstName @user.LastName
+            @if (await UserManager.IsInRoleAsync(user, "Admin"))
+            {
+                <a class="btn btn-danger" href="/Home/RemoveAdmin?uid=@user.Id">Remove Admin Rights</a>
+            }
+            else
+            {
+                <a class="btn btn-success" href="/Home/GrantAdmin?uid=@user.Id">Grant Admin Rights</a>
+            }
+        </li>
+    }
+</ul>

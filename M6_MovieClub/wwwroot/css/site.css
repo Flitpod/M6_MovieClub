@@ -42,19 +42,24 @@ ul {
     flex-direction: row;
     column-gap: 20px;
     align-items: center;
-    font-size: 0.9em;
+    font-size: 100%;
     margin: 20px;
 }
 
-.owner a {
-    color: black;
-    background-color: #eef2fe;
+.owner a, .user a {
     padding: 5px 10px;
     border-radius: 20px;
     text-align: center;
     text-decoration: none;
+    font-size: 100%;
 }
 
-.owner a:hover {
-    background-color: #f85f5f;
+.user {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    column-gap: 20px;
+    align-items: center;
+    font-size: 1.4em;
+    margin: 20px;
 }

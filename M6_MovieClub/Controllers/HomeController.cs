@@ -92,6 +92,28 @@ namespace M6_MovieClub.Controllers
             return RedirectToAction(nameof(EditVotes));
         }
 
+        [Authorize(Roles = "Admin")]
+        public IActionResult EditUsers()
+        {
+            return View(this._userManager.Users);
+        }
+
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> RemoveAdmin(string uid)
+        {
+            var user = this._userManager.Users.FirstOrDefault(u => u.Id == uid);
+            await this._userManager.RemoveFromRoleAsync(user, "Admin");
+            return RedirectToAction(nameof(EditUsers));
+        }
+
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GrantAdmin(string uid)
+        {
+            var user = this._userManager.Users.FirstOrDefault(u => u.Id == uid);
+            await this._userManager.AddToRoleAsync(user, "Admin");
+            return RedirectToAction(nameof(EditUsers));
+        }
+
         public async Task<IActionResult> GetImage(string userId)
         {
             var user = this._userManager.Users.FirstOrDefault(u => u.Id == userId);

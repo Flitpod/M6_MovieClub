@@ -11,7 +11,8 @@
 <ul>
     @foreach (var movie in Model.GroupBy(m => m.Title))
     {
-        <li class="title">@movie.Key
+        <li class="title">
+            @movie.Key
             <ul>
                 @foreach (var item in movie)
                 {
@@ -22,7 +23,7 @@
                         @item.Owner.FirstName @item.Owner.LastName
                         @if (item.OwnerId == UserManager.GetUserId(User))
                         {
-                            <a href="/Home/Delete/?uid=@item.Uid" >
+                            <a class="btn btn-danger" href="/Home/Delete?uid=@item.Uid" >
                                 Delete
                             </a>
                         }

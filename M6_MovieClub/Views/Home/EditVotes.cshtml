@@ -17,7 +17,7 @@
                             <img src="@Url.Action("GetImage","Home", new { userid = item.OwnerId })" />
                         </div>
                         @item.Owner.FirstName @item.Owner.LastName
-                        <a href="/Home/DeleteVote/?uid=@item.Uid">
+                        <a class="btn btn-danger" href="/Home/DeleteVote?uid=@item.Uid">
                             Delete
                         </a>
                     </li>
