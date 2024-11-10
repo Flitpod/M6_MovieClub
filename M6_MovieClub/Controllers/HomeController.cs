@@ -2,6 +2,7 @@
 using M6_MovieClub.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
@@ -13,13 +14,21 @@ namespace M6_MovieClub.Controllers
         private readonly RoleManager<IdentityRole> _roleManager; 
         private readonly ILogger<HomeController> _logger;
         private readonly ApplicationDbContext _dbContext;
+        private readonly IEmailSender _emailSender;
 
-        public HomeController(UserManager<SiteUser> userManager, RoleManager<IdentityRole> roleManager, ILogger<HomeController> logger, ApplicationDbContext dbContext)
+        public HomeController(
+            UserManager<SiteUser> userManager, 
+            RoleManager<IdentityRole> roleManager, 
+            ILogger<HomeController> logger, 
+            ApplicationDbContext dbContext, 
+            IEmailSender emailSender
+        )
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _logger = logger;
             _dbContext = dbContext;
+            _emailSender = emailSender;
         }
 
         public async Task<IActionResult> DelegateAdmin()
@@ -51,15 +60,17 @@ namespace M6_MovieClub.Controllers
 
         [Authorize]
         [HttpPost]
-        public IActionResult Add(Movie movie)
+        public async Task<IActionResult> Add(Movie movie)
         {
-            movie.OwnerId = this._userManager.GetUserId(this.User);
+            var user = await this._userManager.GetUserAsync(this.User);
+            movie.OwnerId = user.Id;
             var old = this._dbContext.Movies.FirstOrDefault(m => m.Title == movie.Title && m.OwnerId == movie.OwnerId);
             if (old == null)
             {
                 this._dbContext.Movies.Add(movie);
                 this._dbContext.SaveChanges();
             }
+            await this._emailSender.SendEmailAsync(user.Email, "Movie votes added!", $"{movie.Title} voted!");
             return RedirectToAction(nameof(Index));
         }
 
