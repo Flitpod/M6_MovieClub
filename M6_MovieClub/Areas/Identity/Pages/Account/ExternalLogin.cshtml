@@ -34,9 +34,18 @@
                 <span asp-validation-for="Input.LastName" class="text-danger"></span>
             </div>
             <input type="hidden" asp-for="Input.PictureUrl" />
+            <input type="hidden" asp-for="Input.PictureData" />
+            <input type="hidden" asp-for="Input.PictureContentType" />
             <button type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
         </form>
-        <img src="@Model.Input.PictureUrl" />
+        @if (Model.Input.PictureUrl?.Length > 3)
+        {
+            <img src="@Model.Input.PictureUrl" />
+        } 
+        else if(Model.Input.Email.Contains("outlook"))
+        {
+            <img src="data:@Model.Input.PictureContentType;base64,@Model.Input.BytesAsString" />            
+        }
     </div>
 </div>
 

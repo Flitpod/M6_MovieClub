@@ -20,6 +20,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using System.Net;
 using Newtonsoft.Json;
+using System.Globalization;
 
 namespace M6_MovieClub.Areas.Identity.Pages.Account
 {
@@ -81,6 +82,15 @@ namespace M6_MovieClub.Areas.Identity.Pages.Account
         //    public string token_type { get; set; }
         //}
 
+        public class MsMetaData
+        {
+            [JsonProperty("@odata.mediaContentType")]
+            public string odatamediaContentType { get; set; }
+            public string id { get; set; }
+            public int width { get; set; }
+            public int height { get; set; }
+        }
+
         /// <summary>
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -100,8 +110,24 @@ namespace M6_MovieClub.Areas.Identity.Pages.Account
             public string LastName { get; set; }
 
             public string PictureUrl { get; set; }
+
+            public byte[] PictureData { get; set; }
+
+            public string PictureContentType { get; set; }
+
+            public string BytesAsString
+            {
+                get
+                {
+                    if (PictureData == null)
+                    {
+                        return "";
+                    }
+                    return Convert.ToBase64String(PictureData);
+                }
+            }
         }
-        
+
         public IActionResult OnGet() => RedirectToPage("./Login");
 
         public IActionResult OnPost(string provider, string returnUrl = null)
@@ -145,20 +171,35 @@ namespace M6_MovieClub.Areas.Identity.Pages.Account
                 ProviderDisplayName = info.ProviderDisplayName;
                 if (info.Principal.HasClaim(c => c.Type == ClaimTypes.Email))
                 {
+                    var id = info.Principal.FindFirstValue(ClaimTypes.NameIdentifier);
                     Input = new InputModel
                     {
                         Email = info.Principal.FindFirstValue(ClaimTypes.Email),
                         FirstName = info.Principal.FindFirstValue(ClaimTypes.Surname),
                         LastName = info.Principal.FindFirstValue(ClaimTypes.GivenName),
-                        PictureUrl = "https://graph.facebook.com/"
-                                    + info.Principal.FindFirstValue(ClaimTypes.NameIdentifier)
-                                    + "/picture?type=large"
                     };
-                    
+
                     // For facebook external login
-                    //var access_token_json = new WebClient().DownloadString("");
-                    //var token = JsonConvert.DeserializeObject<TokenModel>(access_token_json);
-                    //Input.PictureUrl = $"https://graph.facebook.com/{info.Principal.FindFirstValue(ClaimTypes.NameIdentifier)}/picture?type=large";
+                    if (ProviderDisplayName == "Facebook")
+                    {
+                        //var access_token_json = new WebClient().DownloadString("");
+                        //var token = JsonConvert.DeserializeObject<TokenModel>(access_token_json);
+                        //Input.PictureUrl = $"https://graph.facebook.com/{id}/picture?type=large";
+                    }
+                    else if (info.ProviderDisplayName == "Microsoft")
+                    {
+                        //var wc = new WebClient();
+                        //wc.Headers.Add("Authorization", "Bearer" + info.AuthenticationTokens.FirstOrDefault().Value);
+                        //Input.PictureData = wc.DownloadData($"https://graph.microsoft.com/users/{id}/photo/$value");
+                        //var metadata = wc.DownloadString($"https://graph.microsoft.com/users/{id}/photo/");
+                        //var mdjson = JsonConvert.DeserializeObject<MsMetaData>(metadata);
+                        //Input.PictureContentType = mdjson.odatamediaContentType;
+                    } 
+                    else if (info.ProviderDisplayName == "Google")
+                    {
+                        // todo get profile images
+
+                    }
                 }
                 return Page();
             }
@@ -179,15 +220,28 @@ namespace M6_MovieClub.Areas.Identity.Pages.Account
             {
                 var user = CreateUser();
 
-                // For facebook external login
-                //// set properties of extended input model
-                //user.FirstName = Input.FirstName;
-                //user.LastName = Input.LastName;
+                // set properties of extended input model
+                user.FirstName = Input.FirstName;
+                user.LastName = Input.LastName;
 
-                //// todo facebook profile picture processing
-                //var webClient = new WebClient();
-                //user.Data = webClient.DownloadData(Input.PictureUrl);
-                //user.ContentType  = webClient.ResponseHeaders[HttpRequestHeader.ContentType];
+                if (info.ProviderDisplayName == "Facebook")
+                {
+                    // For facebook external login
+
+                    //// todo facebook profile picture processing
+                    //var webClient = new WebClient();
+                    //user.Data = webClient.DownloadData(Input.PictureUrl);
+                    //user.ContentType  = webClient.ResponseHeaders[HttpRequestHeader.ContentType];
+                }
+                else if (info.ProviderDisplayName == "Microsoft")
+                {
+                    user.Data = Input.PictureData;
+                    user.ContentType = Input.PictureContentType;
+                    user.EmailConfirmed = true;
+                } else if (info.ProviderDisplayName == "Google")
+                {
+                    user.EmailConfirmed = true;
+                }
 
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
@@ -196,7 +250,7 @@ namespace M6_MovieClub.Areas.Identity.Pages.Account
                 if (result.Succeeded)
                 {
                     result = await _userManager.AddLoginAsync(user, info);
-                    if (result.Succeeded)
+                    if (result.Succeeded && !user.EmailConfirmed)
                     {
                         _logger.LogInformation("User created an account using {Name} provider.", info.LoginProvider);
 

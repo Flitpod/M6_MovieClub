@@ -30,9 +30,21 @@ builder.Services.AddDefaultIdentity<SiteUser>(options =>
 
 builder.Services.AddTransient<IEmailSender, EmailSender>();
 
+builder.Services
+    .AddAuthentication()
+    .AddGoogle(opt =>
+    {
+        opt.ClientId = builder.Configuration["GoogleAuthProvider:ClientId"];
+        opt.ClientSecret = builder.Configuration["GoogleAuthProvider:ClientSecret"];
+        opt.SaveTokens = true;
+    })
+    .AddMicrosoftAccount(opt =>
+    {
+        opt.ClientId = builder.Configuration.GetValue<string>("MicrosoftAuthProvider:ClientId");
+        opt.ClientSecret = builder.Configuration.GetValue<string>("MicrosoftAuthProvider:ClientSecret");
+        opt.SaveTokens = true;
+    });
 // facebook login 
-//builder.Services
-//    .AddAuthentication()
 //    .AddFacebook(opt =>
 //    {
 //        opt.AppId = "";
